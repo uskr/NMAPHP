@@ -2,7 +2,7 @@
 
 class NotifyMyAndroid
 {
-	var $_version = '0.0.1-php4';
+	var $_version = '0.0.2-php4';
 	var $_obj_curl = null;
 	var $_return_code;
 	var $_remaining;
@@ -13,21 +13,21 @@ class NotifyMyAndroid
 	var $_proxy_userpwd = null;
 
 	var $_api_key = null;
-	var $_prov_key = null;
-	var $_api_domain = 'https://nma.usk.bz/publicapi/';
-	var $_url_verify = 'verify?apikey=%s&developerkey=%s';
+	var $_dev_key = null;
+	var $_api_domain = 'https://www.notifymyandroid.com/publicapi/';
+	var $_url_verify = 'verify?apikey=%s';
 	var $_url_push = 'notify';
 	
 	var $_params = array(			// Accessible params [key => maxsize]
-		'apikey' 		=> 		48,		// User API Key.
-		'developer' 	=>		48,		// Provider key.
-		'priority' 		=> 		2,		// Range from -2 to 2.
+		'apikey' 	=> 		48,		// User API Key.
+		'developerkey' 	=>		48,		// Provider key.
+		'priority' 	=> 		2,		// Range from -2 to 2.
 		'application' 	=> 		254,	// Name of the app.
-		'event' 		=> 		1000,	// Name of the event.
+		'event' 	=> 		1000,	// Name of the event.
 		'description' 	=> 		10000,	// Description of the event.
 	);
 	
-	function NotifyMyAndroid($apikey=null, $verify=false, $provkey=null, $proxy=null, $userpwd=null)
+	function NotifyMyAndroid($apikey=null, $verify=false, $devkey=null, $proxy=null, $userpwd=null)
 	{
 		$curl_info = curl_version();	// Checks for cURL function and SSL version. Thanks Adrian Rollett!
 		if(!function_exists('curl_exec') || empty($curl_info['ssl_version']))
@@ -39,18 +39,18 @@ class NotifyMyAndroid
 			$this->_setProxy($proxy, $userpwd);
 		
 		if(isset($apikey) && $verify)
-			$this->verify($apikey, $provkey);
+			$this->verify($apikey, $devkey);
 		
 		$this->_api_key = $apikey;
 	}
 	
-	function verify($apikey, $provkey)
+	function verify($apikey)
 	{
-		$return = $this->_execute(sprintf($this->_url_verify, $apikey, $provkey));		
+		$return = $this->_execute(sprintf($this->_url_verify, $apikey));		
 		return $this->_response($return);
 	}
 	
-	function push($params, $is_post=false)
+	function push($params, $is_post=true)
 	{	
 		if($is_post)
 			$post_params = '';
@@ -61,12 +61,12 @@ class NotifyMyAndroid
 		if(isset($this->_api_key) && !isset($params[0]['apikey']))
 			$params[0]['apikey'] = $this->_api_key;
 		
-		if(isset($this->_prov_key) && !isset($params[0]['developerkey']))
-			$params[0]['developerkey'] = $this->_prov_key;
+		if(isset($this->_dev_key) && !isset($params[0]['developerkey']))
+			$params[0]['developerkey'] = $this->_dev_key;
 		
 		foreach($params[0] as $k => $v)
 		{
-			$v = str_replace("\\n","\n",$v);	// Fixes line break issue! Cheers Fr3d!
+			$v = str_replace("\\n","\n",$v);	// Fixes line break issue! 
 			if(!isset($this->_params[$k]))
 			{
 				$this->_return_code = 400;
@@ -79,9 +79,9 @@ class NotifyMyAndroid
 			}
 			
 			if($is_post)
-				$post_params .= $k . '=' . urlencode($v) . '&';
+				$post_params .= $k . '=' . urlencode(utf8_encode($v)) . '&';
 			else
-				$url .= $k . '=' . urlencode($v) . '&';
+				$url .= $k . '=' . urlencode(utf8_encode($v)) . '&';
 		}
 		
 		if($is_post)
@@ -164,11 +164,10 @@ class NotifyMyAndroid
 		$return = str_replace("\n", " ", $return);
 	
 		if(preg_match("/code=\"200\"/i", $return))
-			//TODO: add remaining and resetdate
 			$this->_return_code = 200;
 		else
 		{
-			preg_match("/<error.*?>(.*?)<\/error>/i", $return, $out);
+			preg_match("/<error code=\"(.*?)\".*>(.*?)<\/error>/i", $return, $out);
 			$this->_return_code = $out[1];
 		}
 		

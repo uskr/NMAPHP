@@ -3,7 +3,7 @@ Notify My Android (PHP Library)
 
 	Notify My Android (http://nma.usk.bz)
 	NMAPHP - PHP Library to access NMA public API (php4 compatible)
-	Last Stable Version: 1.0.0
+	Last Stable Version: 0.0.2-php4
 	For developers: http://github.com/uskr/NMALib.Net
 	Author: Unknown
 	Refactoring and Modifications: Adriano Maia (adriano@usk.bz)
