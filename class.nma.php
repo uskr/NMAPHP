@@ -2,7 +2,7 @@
 
 class NotifyMyAndroid
 {
-	var $_version = '0.0.2-php4';
+	var $_version = '0.0.3-php4';
 	var $_obj_curl = null;
 	var $_return_code;
 	var $_remaining;
@@ -14,6 +14,7 @@ class NotifyMyAndroid
 
 	var $_api_key = null;
 	var $_dev_key = null;
+	
 	var $_api_domain = 'https://www.notifymyandroid.com/publicapi/';
 	var $_url_verify = 'verify?apikey=%s';
 	var $_url_push = 'notify';
@@ -25,6 +26,7 @@ class NotifyMyAndroid
 		'application' 	=> 		254,	// Name of the app.
 		'event' 	=> 		1000,	// Name of the event.
 		'description' 	=> 		10000,	// Description of the event.
+		//'url'	=>	1000 // Url to attach to the message. (Not yet support by the Android client. Soon!)
 	);
 	
 	function NotifyMyAndroid($apikey=null, $verify=false, $devkey=null, $proxy=null, $userpwd=null)
